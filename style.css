@@ -1,20 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap");
 
 * {
-    font-family: 'Cutive Mono', monospace;
-    color: #c5c8c6;
-    background-color: #1d1f21;
-    scroll-behavior: smooth;
+  font-family: "Cutive Mono", monospace;
+  color: #c5c8c6;
+  background-color: #1d1f21;
+  scroll-behavior: smooth;
 }
 
 * ::selection {
-    background-color:#515151;
-    /* color:#ccc; */
+  background-color: #515151;
+  /* color:#ccc; */
 }
 
-h2, h3 {
-    padding: 0px;
-    margin: 0px;
+h2,
+h3 {
+  padding: 0px;
+  margin: 0px;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -25,68 +26,91 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-.branding, .generator {
-    text-align: center;
+.branding,
+.generator {
+  text-align: center;
 }
 
 .branding {
-    margin-top: 1em;
-    margin-bottom: 2em;
+  margin-top: 1em;
+  margin-bottom: 2em;
 }
 
-.generator {
-    margin-left: 30vw;
-    margin-right: 30vw;
-}
-
-#shortlink {
-    margin-top: 0.5vh;
-}
-
-.open_collapsible {
-    margin: 1vh;
-    cursor: pointer;
-    user-select: none;
-}
-
-.collapsible {
-    margin: 1vh;
-    padding: 1vh;
-    display: none;
-}
-
-#advanced_menu {
-    border-top: #c5c8c6 dashed 1px;
-    border-bottom: #c5c8c6 dashed 1px;
-    border-radius: 10px;
-}
-
-#success, #failure {
-    display: none;
-    margin: 1vh;
-    padding: 1vh;
+#notice {
+    margin: 1em;
+    padding: 0.5em;
     border-radius: 10px;
     border-style: dashed;
     border-width: 1px 0px 1px 0px;
+    border-color: #f5f591;
+    display: none;
+}
+
+.generator {
+  margin-left: 30vw;
+  margin-right: 30vw;
+}
+
+#shortlink {
+  margin-top: 0.5em;
+}
+
+.open_collapsible {
+  margin: 0.5em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapsible {
+  margin: 0px 1em 0px 1em;
+  padding: 0.5em;
+  display: none;
+}
+
+#advanced_menu {
+  border-top: #c5c8c6 dashed 1px;
+  border-bottom: #c5c8c6 dashed 1px;
+  border-radius: 10px;
+}
+
+#result > * {
+  display: none;
+}
+
+#success,
+#failure {
+  margin: 0.5em 1em 0.5em 1em;
+  padding: 0.5em;
+  border-radius: 10px;
+  border-style: dashed;
+  border-width: 1px 0px 1px 0px;
 }
 
 #success {
-    border-color: #73d673;
+  border-color: #73d673;
 }
 
 #failure {
-    border-color: #f7665e;
+  border-color: #f7665e;
+}
+
+#copy_result {
+  margin: 1em;
+  position: absolute;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 .footer {
-    position: fixed;
-    bottom: 1vh;
-    left: 1vw;
-    width: 100%;
-    text-align: left;
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  width: 100%;
+  text-align: left;
 }

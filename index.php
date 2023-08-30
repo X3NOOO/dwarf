@@ -1,5 +1,4 @@
-<?php
-
+<?php // Copyright (C) 2023 X3NO [https://github.com/X3NOOO] licensed under GNU AGPL 
 function openDb(): SQLite3
 {
     $db = new SQLite3("dwarf.sqlite");
@@ -60,7 +59,13 @@ function getLonglink($db, $shortlink): string|bool
     $now = new DateTime();
     $dies_at = new DateTime($dies_at);
     if ($now > $dies_at) {
-        removeFromDb($db, $shortlink);
+        try {
+            removeFromDb($db, $shortlink);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo "Internal server error: " . $e->getMessage();
+        }
+
         return false;
     }
 
@@ -68,7 +73,12 @@ function getLonglink($db, $shortlink): string|bool
     $uses = $row['uses'];
     if (!is_null($uses)) {
         if ($uses <= 0) {
-            removeFromDb($db, $shortlink);
+            try {
+                removeFromDb($db, $shortlink);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo "Internal server error: " . $e->getMessage();
+            }
             return false;
         } else {
             //decrement uses
@@ -123,30 +133,37 @@ function addNewShortlink($db, $shortlink, $long_url, $dies_at, $password, $uses)
 {
     $stmt = $db->prepare('INSERT INTO urls (short_url, long_url, dies_at, password, uses) VALUES (:short_url, :long_url, :dies_at, :password, :uses)');
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $stmt->bindValue(':short_url', $shortlink, SQLITE3_TEXT);
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $stmt->bindValue(':long_url', $long_url, SQLITE3_TEXT);
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $stmt->bindValue(':dies_at', $dies_at, SQLITE3_TEXT);
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $stmt->bindValue(':password', $password, $password == "" ? SQLITE3_NULL : SQLITE3_TEXT);
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $stmt->bindValue(':uses', $uses, $uses == "" ? SQLITE3_NULL : SQLITE3_INTEGER);
     if ($stmt === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
     $result = $stmt->execute();
     if ($result === false) {
+        $db->close();
         throw new Exception($db->lastErrorMsg());
     }
 
@@ -155,9 +172,20 @@ function addNewShortlink($db, $shortlink, $long_url, $dies_at, $password, $uses)
     $db->close();
 }
 
+function getServerUrl(): string {
+    $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
+    return $protocol . $_SERVER['SERVER_NAME'];
+}
+
 // we got a creation request
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $db = openDb();
+    try {
+        $db = openDb();
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo "Internal server error: " . $e->getMessage();
+        return;
+    }
     $long_url = $_POST['long_url'];
     $shortlink = $_POST['shortlink'];
     $dies_at = $_POST['dies_at'];
@@ -167,20 +195,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($password != "") {
         http_response_code(501);
         echo 'Passwords are not implemented yet.';
+        $db->close();
         return;
     }
 
     if (!filter_var($long_url, FILTER_VALIDATE_URL) && !filter_var($long_url = 'http://' . $long_url, FILTER_VALIDATE_URL)) {
         http_response_code(400);
         echo 'Invalid long link.';
+        $db->close();
         return;
     }
 
     if ($shortlink == "") {
-        $shortlink = generateShortlink($db);
+        try {
+            $shortlink = generateShortlink($db);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo "Internal server error: " . $e->getMessage();
+            $db->close();
+            return;
+        }
     } else if (preg_match('/^[a-zA-Z0-9_-]+$/', $shortlink) == false) {
         http_response_code(400);
         echo 'Invalid shortlink selected.';
+        $db->close();
         return;
     }
 
@@ -189,11 +227,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($longlink !== false) {
             http_response_code(400);
             echo 'This shortlink is already taken.';
+            $db->close();
             return;
         }
     } catch (Exception $e) {
         http_response_code(500);
-        echo $e->getMessage();
+        echo "Internal server error: " . $e->getMessage();
+        $db->close();
         return;
     }
 
@@ -201,35 +241,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         addNewShortlink($db, $shortlink, $long_url, $dies_at, $password, $uses);
     } catch (Exception $e) {
         http_response_code(500);
-        echo $e->getMessage();
+        echo "Internal server error: " . $e->getMessage();
+        $db->close();
         return;
     }
 
     $db->close();
 
-    $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === 0 ? 'https://' : 'http://';
-    echo $protocol . $_SERVER['SERVER_NAME'] . '/' . $shortlink;
+    $server = getServerUrl();
+    echo $server . '/' . $shortlink;
     return;
 }
 
 $request = $_SERVER['REQUEST_URI'];
 if ($request != '/' && $request != '' && $request != '/index.php' && $request != '/?not_found=true' && $request != '?not_found=true') {
-    $db = openDb();
     // shortened url
+    try {
+        $db = openDb();
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo "Internal server error: " . $e->getMessage();
+    }
     $short_url = ltrim($request, '/');
     if (preg_match('/^@?[a-zA-Z0-9_-]+$/', $short_url) !== 1) {
         http_response_code(400);
         echo 'Invalid shortlink.';
         return;
     }
-    $long_url = getLonglink($db, $short_url);
-    if ($long_url === false) {
-        http_response_code(404);
-        echo "Shortlink not found.";
+    try {
+        $long_url = getLonglink($db, $short_url);
+        if ($long_url === false) {
+            header('Location: ' . getServerUrl() . '?not_found=true');
+            return;
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo "Internal server error: " . $e->getMessage();
+        $db->close();
         return;
     }
     $db->close();
     header('Location: ' . $long_url);
+} else if ($request === '/?not_found=true' || $request === '?not_found=true') {
+    $notice = 'The shortlink you\'ve clicked does not exist.';
 }
 ?>
 <!DOCTYPE html>
@@ -248,6 +302,7 @@ if ($request != '/' && $request != '' && $request != '/index.php' && $request !=
         <h3>an url shortener</h3>
     </div>
     <div class="generator">
+        <div id="notice"><?=$notice?></div>
         <form id="request_form" action="<?= $_SERVER['PHP_SELF']; ?>" method="POST">
             <input type="text" name="long_url" id="long_url" placeholder="Enter a long link">
             <button type="submit" name="submit">Shorten</button>
@@ -270,16 +325,17 @@ if ($request != '/' && $request != '' && $request != '/index.php' && $request !=
                 <span id="info_dies_at" title="The shortened link will be deleted by this date.">?</span>
                 <br>
 
-                <!-- <input type="checkbox" id="enable_password"> -->
-                <!-- Password: -->
-                <!-- <input type="password" name="password" id="password" placeholder="Password" disabled> -->
-                <!-- <span id="info_password" -->
-                    <!-- title="If you use password your original link will get encrypted. There will be no way of recovering the original link if you forget the password.">?</span> -->
+                <input type="checkbox" id="enable_password">
+                Password:
+                <input type="password" name="password" id="password" placeholder="Password" disabled>
+                <span id="info_password"
+                    title="If you use password your original link will get encrypted. There will be no way of recovering the original link if you forget the password.">?</span>
             </div>
         </form>
-        <span class="result">
+        <span id="result">
             <div id="success"></div>
             <div id="failure"></div>
+            <button id="copy_result">Copy shortlink</button>
         </span>
         <div class="footer">
             dwarf is opensource, you can grab a copy <a href="https://github.com/X3NOOO/dwarf" target="_blank">here</a>
@@ -290,8 +346,10 @@ if ($request != '/' && $request != '' && $request != '/index.php' && $request !=
             element.preventDefault();
             const success = document.getElementById("success");
             const failure = document.getElementById("failure");
+            const copy_button = document.getElementById("copy_result");
             success.style.display = "none";
             failure.style.display = "none";
+            copy_button.style.display = "none";
 
             let formData = new FormData(element.currentTarget);
 
@@ -310,11 +368,13 @@ if ($request != '/' && $request != '' && $request != '/index.php' && $request !=
                 .then(data => {
                     // console.log(data);
                     success.style.display = "block";
+                    copy_button.style.display = "block";
                     success.innerHTML = "<a href='" + data + "' target='_blank'>" + data + "</a>";
                 })
                 .catch(error => {
                     // console.error(error);
                     failure.style.display = "block";
+                    // copy_button.style.display = "block";
                     failure.innerText = error.message;
                 });
         })
@@ -339,6 +399,45 @@ if ($request != '/' && $request != '' && $request != '/index.php' && $request !=
 
             document.getElementById("advanced_menu").style.display = menu_hidden ? "none" : "block";
         });
+
+        // copy button
+        document.getElementById("copy_result").addEventListener("click", function () {
+            const container = document.getElementById("result");
+            const divs = container.getElementsByTagName("div");
+            let text = "";
+
+            for (let div of divs) {
+                if (getComputedStyle(div).display !== "none") {
+                    text = div.innerText;
+                    break;
+                }
+            }
+
+            // Copy the text to clipboard
+            if (text) {
+                const textarea = document.createElement("textarea");
+                document.body.appendChild(textarea);
+                textarea.value = text;
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                
+                const prev = this.innerText;
+                this.innerText = "Copied!";
+
+                setTimeout(() => {
+                    this.innerText = prev;
+                }, 2000);
+            }
+        });
+
+        // check if notice exists
+        window.addEventListener("load", () => {
+            const notice = document.getElementById("notice");
+            if(notice.innerText != "") {
+                notice.style.display = "block";
+            }
+        })
     </script>
 </body>
 
