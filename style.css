@@ -42,13 +42,12 @@ input[type="number"] {
 }
 
 #notice {
-    margin: 1em;
-    padding: 0.5em;
-    border-radius: 10px;
-    border-style: dashed;
-    border-width: 1px 0px 1px 0px;
-    border-color: #f5f591;
-    display: none;
+  margin: 1em;
+  padding: 0.5em;
+  border-radius: 10px;
+  border-style: dashed;
+  border-width: 1px 0px 1px 0px;
+  border-color: #f5f591;
 }
 
 .generator {
