@@ -205,7 +205,7 @@ function encrypt($plaintext, $key): string
 function decrypt($ciphertext_base64, $key): string
 {
     $cipher = "aes-256-gcm";
-    
+
     list($iv_base64, $tag_base64, $ciphertext_base64) = explode(':', $ciphertext_base64, 3);
     $iv = base64_decode($iv_base64);
     $tag = base64_decode($tag_base64);
@@ -432,7 +432,7 @@ html:
                     <input type="checkbox" id="enable_uses">
                     Number of uses:
                     <input type="number" name="uses" id="uses" placeholder="1" disabled>
-                    <span id="info_number" title="The shortened link will be deleted after this many uses.">?</span>
+                    <span id="info_uses" title="The shortened link will be deleted after this many uses.">?</span>
                     <br>
 
                     <input type="checkbox" id="enable_dies_at">
@@ -451,7 +451,7 @@ html:
             <span id="result">
                 <div id="success"></div>
                 <div id="failure"></div>
-                <button id="copy_result">Copy shortlink</button>
+                <span id="bwrap"><button id="copy_result">Copy shortlink</button></span>
             </span>
             <div class="footer">
                 dwarf is opensource, you can grab a copy <a href="https://github.com/X3NOOO/dwarf" target="_blank">here</a>
@@ -462,7 +462,7 @@ html:
                 element.preventDefault();
                 const success = document.getElementById("success");
                 const failure = document.getElementById("failure");
-                const copy_button = document.getElementById("copy_result");
+                const copy_button = document.getElementById("bwrap");
                 success.style.display = "none";
                 failure.style.display = "none";
                 copy_button.style.display = "none";
@@ -483,13 +483,13 @@ html:
                     })
                     .then(data => {
                         // console.log(data);
-                        success.style.display = "block";
+                        success.style.display = "inline-block";
                         copy_button.style.display = "block";
                         success.innerHTML = "<a href='" + data + "' target='_blank'>" + data + "</a>";
                     })
                     .catch(error => {
                         // console.error(error);
-                        failure.style.display = "block";
+                        failure.style.display = "inline-block";
                         // copy_button.style.display = "block";
                         failure.innerText = error.message;
                     });
@@ -513,7 +513,7 @@ html:
 
                 element.currentTarget.innerText = element.currentTarget.innerText.replace(menu_hidden ? 'V' : '>', menu_hidden ? '>' : 'V');
 
-                document.getElementById("advanced_menu").style.display = menu_hidden ? "none" : "block";
+                document.getElementById("advanced_menu").style.display = menu_hidden ? "none" : "inline-block";
             });
 
             // copy button
