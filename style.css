@@ -9,15 +9,7 @@
 
 * ::selection {
   background-color: #515151;
-  /* color:#ccc; */
 }
-
-/* @media screen and (max-width: 70rem) { */
-/* .generator { */
-/* margin-left: 0vw !important; */
-/* margin-right: 0vw !important; */
-/* } */
-/* } */
 
 h2,
 h3 {
@@ -32,7 +24,6 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
@@ -115,14 +106,6 @@ input[type="number"] {
 #failure {
   border-color: #f7665e;
 }
-
-/* #copy_result {
-  margin: 1em;
-  position: absolute;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-} */
 
 .footer {
   position: fixed;
