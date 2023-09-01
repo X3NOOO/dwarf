@@ -1,0 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap");
+
+* {
+  font-family: "Cutive Mono", monospace;
+  color: #c5c8c6;
+  background-color: #1d1f21;
+  scroll-behavior: smooth;
+}
+
+* ::selection {
+  background-color: #515151;
+}
+
+h2,
+h3 {
+  padding: 0px;
+  margin: 0px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.branding,
+.generator {
+  text-align: center;
+}
+
+.branding {
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+#notice {
+  margin: 1em;
+  padding: 0.5em;
+  border-radius: 10px;
+  border-style: dashed;
+  border-width: 1px 0px 1px 0px;
+  border-color: #f5f591;
+}
+
+.generator {
+  overflow: auto;
+}
+
+#shortlink {
+  margin-top: 0.5em;
+}
+
+.open_collapsible {
+  margin: 0.5em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapsible {
+  margin: 0px 1em 0px 1em;
+  padding: 0.5em;
+  display: none;
+}
+
+#advanced_menu {
+  border-top: #c5c8c6 dashed 1px;
+  border-bottom: #c5c8c6 dashed 1px;
+  border-radius: 10px;
+}
+
+#uses {
+  width: 2em;
+}
+
+#password {
+  width: 7em;
+}
+
+#brwap {
+    text-align: center;
+}
+
+#result > * {
+  display: none;
+}
+
+#success,
+#failure {
+  margin: 0.5em 1em 0.5em 1em;
+  padding: 0.5em;
+  border-radius: 10px;
+  border-style: dashed;
+  border-width: 1px 0px 1px 0px;
+}
+
+#success {
+  border-color: #73d673;
+}
+
+#failure {
+  border-color: #f7665e;
+}
+
+.footer {
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  width: 100%;
+  text-align: left;
+}
