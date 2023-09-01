@@ -9,7 +9,7 @@
 
 A simple link shortener.
 
-![screenshot](https://raw.githubusercontent.com/X3NOOO/dwarf/master/dwarf.png)
+![screenshot](https://github.com/X3NOOO/dwarf/blob/master/dwarf.png?raw=true)
 
 ## Features
 
